@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Tycoon Mafia - Your Role</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Arial Black', Arial, sans-serif;
+      color: #fff;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #2a0000;
+      background: #080808;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .back-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: #cc1111;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .header-info { display: flex; flex-direction: column; }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #cc1111;
+      text-shadow: 0 0 12px rgba(200,0,0,0.4);
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: #5a0000;
+      letter-spacing: 1px;
+    }
+
+    .header-logo {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(200,0,0,0.5));
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #3d0000, transparent);
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .role-card {
+      background: linear-gradient(160deg, #1a0000, #0d0000);
+      border: 2px solid #5a0000;
+      border-radius: 20px;
+      padding: 40px 30px;
+      max-width: 300px;
+      width: 100%;
+      box-shadow: 0 0 40px rgba(180,0,0,0.3);
+    }
+
+    .role-label {
+      font-size: 11px;
+      color: #5a0000;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+
+    .role-value {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: #cc1111;
+      text-shadow: 0 0 20px rgba(200,0,0,0.6);
+    }
+
+    .role-value.mafia { color: #9900cc; text-shadow: 0 0 20px rgba(153,0,204,0.6); }
+    .role-value.police { color: #0066ff; text-shadow: 0 0 20px rgba(0,102,255,0.6); }
+    .role-value.doctor { color: #00cc66; text-shadow: 0 0 20px rgba(0,204,102,0.6); }
+    .role-value.civilian { color: #cc1111; text-shadow: 0 0 20px rgba(200,0,0,0.6); }
+
+    .player-name {
+      font-size: 14px;
+      color: #888;
+      letter-spacing: 2px;
+      margin-top: 20px;
+    }
+
+    .waiting {
+      color: #5a0000;
+      font-size: 13px;
+      letter-spacing: 2px;
+    }
+
+    .pulse-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #cc1111;
+      margin-top: 20px;
+      animation: pdot 1.4s infinite;
+    }
+
+    @keyframes pdot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(200,0,0,0.6); }
+      50%       { box-shadow: 0 0 0 12px rgba(200,0,0,0); }
+    }
+
+    .btn-action {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      background: linear-gradient(135deg, #006600, #00aa00);
+      border: 1px solid #00cc66;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      cursor: pointer;
+      box-shadow: 0 0 16px rgba(0,204,102,0.4);
+      font-family: 'Arial Black', Arial, sans-serif;
+      transition: box-shadow 0.2s, transform 0.1s;
+    }
+
+    .btn-action:hover { box-shadow: 0 0 24px rgba(0,204,102,0.7); }
+    .btn-action:active { transform: scale(0.98); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: linear-gradient(160deg, #0d1a0d, #001a00);
+      border: 2px solid #00cc66;
+      border-radius: 16px;
+      padding: 24px 20px;
+      width: 90%;
+      max-width: 340px;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 0 40px rgba(0,204,102,0.4);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #00cc66;
+      text-shadow: 0 0 12px rgba(0,204,102,0.5);
+    }
+
+    .modal-content {
+      font-size: 12px;
+      color: #aaa;
+      line-height: 1.8;
+      letter-spacing: 0.5px;
+      font-family: Arial, sans-serif;
+      text-align: left;
+    }
+
+    .modal-content strong {
+      color: #00cc66;
+    }
+
+    .modal-content .warning {
+      color: #ff6644;
+      font-weight: 700;
+      margin-top: 12px;
+      display: block;
+    }
+
+    .btn-okay {
+      padding: 12px 40px;
+      background: linear-gradient(135deg, #006600, #00aa00);
+      border: 1px solid #00cc66;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      box-shadow: 0 0 12px rgba(0,204,102,0.4);
+      transition: box-shadow 0.2s;
+    }
+
+    .btn-okay:hover { box-shadow: 0 0 20px rgba(0,204,102,0.7); }
+
+    /* Bottom nav */
+    .bottom-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px 20px 24px;
+      border-top: 1px solid #2a0000;
+      background: #080808;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item.active { opacity: 1; }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      stroke: #cc1111;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-item.active svg { filter: drop-shadow(0 0 6px rgba(200,0,0,0.8)); }
+
+    .nav-label {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: #cc1111;
+      font-weight: 700;
+    }
+
+    .nav-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #cc1111;
+      box-shadow: 0 0 6px #ff0000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='main.html'">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="header-info">
+      <div class="header-title">YOUR ROLE</div>
+      <div class="header-sub">SECRET ASSIGNMENT</div>
+    </div>
+    <img src="LOGO.png" alt="Logo" class="header-logo" />
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="content">
+    <div id="roleDisplay">
+      <p class="waiting">WAITING FOR ROLE ASSIGNMENT...</p>
+      <div class="pulse-dot"></div>
+    </div>
+  </div>
+
+  <!-- Doctor Ability Modal -->
+  <div class="modal-overlay" id="doctorModal">
+    <div class="modal">
+      <div class="modal-title">🩺 DOCTOR ROLE ABILITY</div>
+      <div class="modal-content" id="doctorMessage"></div>
+      <button class="btn-okay" onclick="closeDoctorModal()">OKAY</button>
+    </div>
+  </div>
+
+  <!-- Police Ability Modal -->
+  <div class="modal-overlay" id="policeModal">
+    <div class="modal" style="border-color:#0066ff;box-shadow:0 0 40px rgba(0,102,255,0.4);background:linear-gradient(160deg,#0d0d1a,#00001a);">
+      <div class="modal-title" style="color:#0066ff;text-shadow:0 0 12px rgba(0,102,255,0.5);">👮 POLICE ROLE ABILITY</div>
+      <div class="modal-content" id="policeMessage"></div>
+      <button class="btn-okay" style="background:linear-gradient(135deg,#003399,#0055cc);border-color:#0066ff;box-shadow:0 0 12px rgba(0,102,255,0.4);" onclick="closePoliceModal()">OKAY</button>
+    </div>
+  </div>
+
+  <!-- Mafia Ability Modal -->
+  <div class="modal-overlay" id="mafiaModal">
+    <div class="modal" style="border-color:#9900cc;box-shadow:0 0 40px rgba(153,0,204,0.4);background:linear-gradient(160deg,#1a001a,#0d000d);">
+      <div class="modal-title" style="color:#9900cc;text-shadow:0 0 12px rgba(153,0,204,0.5);">🕴️ MAFIA ROLE ABILITY</div>
+      <div class="modal-content" id="mafiaMessage"></div>
+      <button class="btn-okay" style="background:linear-gradient(135deg,#330044,#660099);border-color:#9900cc;box-shadow:0 0 12px rgba(153,0,204,0.4);" onclick="closeMafiaModal()">OKAY</button>
+    </div>
+  </div>
+
+  <!-- Civilian Role Modal -->
+  <div class="modal-overlay" id="civilianModal">
+    <div class="modal" style="border-color:#cc1111;box-shadow:0 0 40px rgba(200,0,0,0.4);background:linear-gradient(160deg,#1a0000,#0d0000);">
+      <div class="modal-title" style="color:#cc1111;text-shadow:0 0 12px rgba(200,0,0,0.5);">👤 CIVILIAN ROLE</div>
+      <div class="modal-content" id="civilianMessage"></div>
+      <button class="btn-okay" style="background:linear-gradient(135deg,#550000,#990000);border-color:#cc1111;box-shadow:0 0 12px rgba(200,0,0,0.4);" onclick="closeCivilianModal()">OKAY</button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='main.html'">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">MAIN</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='chat.html'">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">CHAT</span>
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="nav-label">ROLES</span>
+      <div class="nav-dot"></div>
+    </div>
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const currentUser = sessionStorage.getItem('tmUser') || '';
+  let currentRole = null;
+
+  const doctorMessages = [
+    "As a Doctor, you possess the special ability to save and heal another player from elimination.",
+    "If a player is targeted for death during the round, you may use your medical ability to revive and protect them from being eliminated.",
+    "However, this ability is not unlimited. After each use, your healing skill will enter a 1-hour cooldown before it can be activated again.",
+    "Use your power wisely and choose carefully who deserves a second chance.",
+    "⚠️ Important Reminder: Do not reveal your role to other players. Keeping your identity hidden is part of the strategy and survival of the game."
+  ];
+
+  let messageIndex = 0;
+
+  socket.on('connect', () => {
+    socket.emit('rejoin', { name: currentUser });
+    socket.emit('get_my_role');
+  });
+
+  socket.on('your_role', ({ name, role }) => {
+    const display = document.getElementById('roleDisplay');
+    currentRole = role;
+    
+    if (role) {
+      const roleClass = role.toLowerCase();
+      let html = `
+        <div class="role-card">
+          <div class="role-label">YOUR ROLE IS</div>
+          <div class="role-value ${roleClass}">${role}</div>
+          <div class="player-name">${name}</div>
+      `;
+      
+      // Add heal button for doctor
+      if (role === 'DOCTOR') {
+        html += `<button class="btn-action" onclick="openDoctorModal()">🩺 CHOOSE PLAYER TO HEAL</button>`;
+      }
+
+      // Add investigate button for police
+      if (role === 'POLICE') {
+        html += `<button class="btn-action" style="background:linear-gradient(135deg,#003399,#0055cc);border-color:#0066ff;box-shadow:0 0 16px rgba(0,102,255,0.4);" onclick="openPoliceModal()">👮 INVESTIGATE A PLAYER</button>`;
+      }
+
+      // Add eliminate button for mafia
+      if (role === 'MAFIA') {
+        html += `<button class="btn-action" style="background:linear-gradient(135deg,#330044,#660099);border-color:#9900cc;box-shadow:0 0 16px rgba(153,0,204,0.4);" onclick="openMafiaModal()">🕴️ CHOOSE TARGET TO ELIMINATE</button>`;
+      }
+
+      // Show role info for civilian
+      if (role === 'CIVILIAN') {
+        html += `<button class="btn-action" style="background:linear-gradient(135deg,#550000,#990000);border-color:#cc1111;box-shadow:0 0 16px rgba(200,0,0,0.4);" onclick="openCivilianModal()">👤 VIEW YOUR ROLE INFO</button>`;
+      }
+      
+      html += `</div>`;
+      display.innerHTML = html;
+    } else {
+      display.innerHTML = `
+        <p class="waiting">NO ROLE ASSIGNED YET</p>
+        <div class="pulse-dot"></div>
+      `;
+    }
+  });
+
+  const policeMessages = [
+    "As a Police Officer, you have the unique ability to investigate and uncover the hidden role of another player.",
+    "Use your investigation skill wisely to identify suspicious players and gather important information that may help your team survive.",
+    "After selecting a player, you will be able to view their role privately.",
+    "However, your investigation ability has a limitation. Once used, it will enter a 1-hour cooldown before you can investigate another player again.",
+    "Choose your targets carefully — every investigation can change the outcome of the game.",
+    "⚠️ Important Reminder: Do not reveal your role to other players. Keeping your identity secret is essential for strategy, survival, and avoiding becoming a target."
+  ];
+
+  let policeMessageIndex = 0;
+
+  const mafiaMessages = [
+    "As a member of the Mafia, your mission is to secretly eliminate the opposing team — including the Police, Doctor, and Civilians — without exposing your identity.",
+    "During each phase, you may choose one player as your target for elimination. Work carefully, stay hidden, and avoid drawing suspicion toward yourself or your allies.",
+    "The Mafia wins when all opposing roles have been successfully eliminated and the Mafia becomes the last remaining team standing.",
+    "Strategy, deception, and teamwork are the key to victory.",
+    "⚠️ Important Reminder: Do not reveal your role to other players. Your secrecy is your greatest weapon. If your identity is exposed, you may become the next target."
+  ];
+
+  let mafiaMessageIndex = 0;
+
+  const civilianMessages = [
+    "As a Civilian, you do not possess any special abilities. However, your role is one of the most important in the game.",
+    "Stay alert, observe player behavior carefully, and work together with your team to identify who among the players may secretly belong to the Mafia.",
+    "You are one of the Mafia's possible targets, so be cautious with your decisions and avoid drawing unnecessary attention to yourself.",
+    "The Civilians win when all Mafia members have been successfully discovered and eliminated.",
+    "Trust wisely. Think carefully. Every vote can decide the fate of the game.",
+    "⚠️ Important Reminder: Do not reveal your role to other players. Even without special abilities, your survival and decisions are essential to your team's victory."
+  ];
+
+  let civilianMessageIndex = 0;
+
+  function openCivilianModal() {
+    civilianMessageIndex = 0;
+    showCivilianMessage();
+    document.getElementById('civilianModal').classList.add('show');
+  }
+
+  function showCivilianMessage() {
+    document.getElementById('civilianMessage').innerHTML = civilianMessages[civilianMessageIndex];
+  }
+
+  function closeCivilianModal() {
+    civilianMessageIndex++;
+    if (civilianMessageIndex < civilianMessages.length) {
+      showCivilianMessage();
+    } else {
+      document.getElementById('civilianModal').classList.remove('show');
+    }
+  }
+
+  function openMafiaModal() {
+    if (sessionStorage.getItem('mafiaInstructionsRead')) {
+      window.location.href = 'mafia.html';
+      return;
+    }
+    mafiaMessageIndex = 0;
+    showMafiaMessage();
+    document.getElementById('mafiaModal').classList.add('show');
+  }
+
+  function showMafiaMessage() {
+    document.getElementById('mafiaMessage').innerHTML = mafiaMessages[mafiaMessageIndex];
+  }
+
+  function closeMafiaModal() {
+    mafiaMessageIndex++;
+    if (mafiaMessageIndex < mafiaMessages.length) {
+      showMafiaMessage();
+    } else {
+      document.getElementById('mafiaModal').classList.remove('show');
+      sessionStorage.setItem('mafiaInstructionsRead', '1');
+      window.location.href = 'mafia.html';
+    }
+  }
+
+  function openPoliceModal() {
+    if (sessionStorage.getItem('policeInstructionsRead')) {
+      window.location.href = 'police.html';
+      return;
+    }
+    policeMessageIndex = 0;
+    showPoliceMessage();
+    document.getElementById('policeModal').classList.add('show');
+  }
+
+  function showPoliceMessage() {
+    document.getElementById('policeMessage').innerHTML = policeMessages[policeMessageIndex];
+  }
+
+  function closePoliceModal() {
+    policeMessageIndex++;
+    if (policeMessageIndex < policeMessages.length) {
+      showPoliceMessage();
+    } else {
+      document.getElementById('policeModal').classList.remove('show');
+      sessionStorage.setItem('policeInstructionsRead', '1');
+      window.location.href = 'police.html';
+    }
+  }
+
+  function openDoctorModal() {
+    const alreadyRead = sessionStorage.getItem('doctorInstructionsRead');
+    if (alreadyRead) {
+      // Skip instructions, go straight to heal
+      window.location.href = 'heal.html';
+      return;
+    }
+    messageIndex = 0;
+    showDoctorMessage();
+    document.getElementById('doctorModal').classList.add('show');
+  }
+
+  function showDoctorMessage() {
+    const msgEl = document.getElementById('doctorMessage');
+    if (messageIndex < doctorMessages.length) {
+      msgEl.innerHTML = doctorMessages[messageIndex];
+    }
+  }
+
+  function closeDoctorModal() {
+    messageIndex++;
+    if (messageIndex < doctorMessages.length) {
+      showDoctorMessage();
+    } else {
+      document.getElementById('doctorModal').classList.remove('show');
+      // Mark instructions as read
+      sessionStorage.setItem('doctorInstructionsRead', '1');
+      window.location.href = 'heal.html';
+    }
+  }
+
+  socket.on('announcement', ({ title, message }) => showAnnouncement(title, message));
+</script>
+
+<!-- Announcement Modal -->
+<div id="announcementOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.88);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#1a0000,#0d0000);border:2px solid #cc1111;border-radius:20px;padding:32px 24px;width:88%;max-width:340px;text-align:center;box-shadow:0 0 60px rgba(200,0,0,0.5);display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <div style="font-size:28px;">📢</div>
+    <div id="annTitle" style="font-size:15px;font-weight:900;letter-spacing:4px;color:#cc1111;font-family:'Arial Black',Arial,sans-serif;text-shadow:0 0 16px rgba(200,0,0,0.7);"></div>
+    <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,#cc1111,transparent);"></div>
+    <div id="annMessage" style="font-size:13px;color:#ccc;line-height:1.7;font-family:Arial,sans-serif;"></div>
+    <button onclick="closeAnnouncement()" style="margin-top:6px;padding:12px 40px;background:linear-gradient(135deg,#8b0000,#cc1111);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:900;letter-spacing:3px;cursor:pointer;font-family:'Arial Black',Arial,sans-serif;box-shadow:0 0 16px rgba(200,0,0,0.5);">OKAY</button>
+  </div>
+</div>
+<script>
+  function showAnnouncement(title, message) {
+    document.getElementById('annTitle').textContent = title;
+    document.getElementById('annMessage').textContent = message;
+    const el = document.getElementById('announcementOverlay');
+    el.style.display = 'flex';
+    el.style.animation = 'fadeInAnn 0.3s ease';
+  }
+  function closeAnnouncement() {
+    document.getElementById('announcementOverlay').style.display = 'none';
+  }
+</script>
+<style>@keyframes fadeInAnn { from { opacity:0; } to { opacity:1; } }</style>
+
+</body>
+</html>

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Tycoon Mafia - Options</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Arial Black', Arial, sans-serif;
+      color: #fff;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #2a0000;
+      background: #080808;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .back-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: #cc1111;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .header-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #cc1111;
+      text-shadow: 0 0 12px rgba(200,0,0,0.4);
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: #5a0000;
+      letter-spacing: 1px;
+    }
+
+    .header-logo {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(200,0,0,0.5));
+    }
+
+    /* Content area */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px 20px 24px;
+      border-top: 1px solid #2a0000;
+      background: #080808;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item.active { opacity: 1; }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      stroke: #cc1111;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-item.active svg { filter: drop-shadow(0 0 6px rgba(200,0,0,0.8)); }
+
+    .nav-label {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: #cc1111;
+      font-weight: 700;
+    }
+
+    .nav-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #cc1111;
+      box-shadow: 0 0 6px #ff0000;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #3d0000, transparent);
+      margin: 0;
+    }
+
+    .btn-option {
+      background: linear-gradient(135deg, #8b0000, #cc1111);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      padding: 16px 40px;
+      cursor: pointer;
+      box-shadow: 0 0 24px rgba(200,0,0,0.4);
+      font-family: 'Arial Black', Arial, sans-serif;
+      transition: box-shadow 0.2s, transform 0.1s;
+      width: 220px;
+    }
+
+    .btn-option:hover { box-shadow: 0 0 36px rgba(200,0,0,0.7); }
+    .btn-option:active { transform: scale(0.97); }
+
+    /* Timer Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: linear-gradient(160deg, #1a0000, #0d0000);
+      border: 1px solid #5a0000;
+      border-radius: 16px;
+      padding: 32px 28px;
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 0 40px rgba(180,0,0,0.5);
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: #cc1111;
+      text-shadow: 0 0 12px rgba(200,0,0,0.5);
+    }
+
+    .time-inputs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .time-inputs input {
+      width: 64px;
+      background: #0d0000;
+      border: 1px solid #5a0000;
+      border-radius: 8px;
+      color: #ff3333;
+      font-size: 28px;
+      font-weight: 900;
+      font-family: 'Arial Black', Arial, sans-serif;
+      text-align: center;
+      padding: 10px 4px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .time-inputs input:focus { border-color: #cc1111; }
+
+    .time-sep {
+      font-size: 28px;
+      font-weight: 900;
+      color: #cc1111;
+      line-height: 1;
+    }
+
+    .time-labels {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .time-label {
+      width: 64px;
+      text-align: center;
+      font-size: 9px;
+      color: #5a0000;
+      letter-spacing: 2px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid #3d0000;
+      border-radius: 8px;
+      color: #5a0000;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      transition: border-color 0.2s;
+    }
+
+    .btn-cancel:hover { border-color: #8b0000; color: #8b0000; }
+
+    .btn-apply {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #8b0000, #cc1111);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      box-shadow: 0 0 12px rgba(200,0,0,0.4);
+      transition: box-shadow 0.2s;
+    }
+
+    .btn-apply:hover { box-shadow: 0 0 20px rgba(200,0,0,0.7); }
+
+    .phase-btn {
+      width: 100%;
+      padding: 13px;
+      background: #0d0000;
+      border: 1px solid #5a0000;
+      border-radius: 8px;
+      color: #cc1111;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .phase-btn:hover { background: #1a0000; border-color: #cc1111; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='main.html'">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="header-info">
+      <div class="header-title">OPTIONS</div>
+      <div class="header-sub">ADMIN PANEL</div>
+    </div>
+    <img src="LOGO.png" alt="Logo" class="header-logo" />
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Content area -->
+  <div class="content">
+    <button class="btn-option" onclick="startGame()" style="background:linear-gradient(135deg, #006600, #00aa00);">START GAME</button>
+    <button class="btn-option" onclick="window.location.href='setroles.html'" style="margin-top:16px;">SET ROLES</button>
+    <button class="btn-option" onclick="openTimerModal()" style="margin-top:16px;">SET TIMER</button>
+    <button class="btn-option" onclick="openPhaseModal()" style="margin-top:16px;">SET PHASE</button>
+    <button class="btn-option" onclick="openRoundModal()" style="margin-top:16px;">SET ROUND</button>
+    <button class="btn-option" onclick="openWinnerModal()" style="margin-top:16px;background:linear-gradient(135deg, #aa6600, #cc8800);">DECLARE WINNER</button>
+    <button class="btn-option" onclick="openAnnounceModal()" style="margin-top:16px;background:linear-gradient(135deg, #660000, #cc0000);">📢 ANNOUNCE</button>
+    <button class="btn-option" onclick="openEliminateModal()" style="margin-top:16px;background:linear-gradient(135deg, #1a0000, #550000);border:1px solid #cc1111;">💀 ELIMINATE PLAYER</button>
+  </div>
+
+  <!-- Timer Modal -->
+  <div class="modal-overlay" id="timerModal">
+    <div class="modal">
+      <div class="modal-title">SET TIMER</div>
+      <div class="time-inputs">
+        <input type="number" id="inputHours" min="0" max="23" value="1" />
+        <span class="time-sep">:</span>
+        <input type="number" id="inputMins" min="0" max="59" value="0" />
+        <span class="time-sep">:</span>
+        <input type="number" id="inputSecs" min="0" max="59" value="0" />
+      </div>
+      <div class="time-labels">
+        <span class="time-label" style="margin-right:16px;">HRS</span>
+        <span class="time-label" style="margin-right:16px;">MIN</span>
+        <span class="time-label">SEC</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('timerModal')">CANCEL</button>
+        <button class="btn-apply" onclick="applyTimer()">APPLY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase Modal -->
+  <div class="modal-overlay" id="phaseModal">
+    <div class="modal">
+      <div class="modal-title">SET PHASE</div>
+      <div style="display:flex;flex-direction:column;gap:10px;width:100%;">
+        <button class="phase-btn" onclick="applyPhase('VOTE PHASE')">VOTE PHASE</button>
+        <button class="phase-btn" onclick="applyPhase('MAFIA PHASE')">MAFIA PHASE</button>
+        <button class="phase-btn" onclick="applyPhase('DISCUSSION')">DISCUSSION</button>
+        <button class="phase-btn" onclick="applyPhase('NIGHT PHASE')">NIGHT PHASE</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" style="width:100%;" onclick="closeModal('phaseModal')">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Round Modal -->
+  <div class="modal-overlay" id="roundModal">
+    <div class="modal">
+      <div class="modal-title">SET ROUND</div>
+      <div class="time-inputs">
+        <input type="number" id="inputRound" min="1" max="99" value="1"
+               style="width:80px;font-size:36px;" />
+      </div>
+      <div class="time-labels">
+        <span class="time-label">ROUND</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('roundModal')">CANCEL</button>
+        <button class="btn-apply" onclick="applyRound()">APPLY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Winner Modal -->
+  <div class="modal-overlay" id="winnerModal">
+    <div class="modal">
+      <div class="modal-title">DECLARE WINNER</div>
+      <div class="time-inputs">
+        <input type="text" id="inputWinner" placeholder="Winner name"
+               style="width:180px;font-size:16px;text-transform:uppercase;" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('winnerModal')">CANCEL</button>
+        <button class="btn-apply" onclick="declareWinner()">CONFIRM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announce Modal -->
+  <div class="modal-overlay" id="announceModal">
+    <div class="modal">
+      <div class="modal-title">📢 SEND ANNOUNCEMENT</div>
+      <div style="display:flex;flex-direction:column;gap:10px;width:100%;">
+        <input type="text" id="announceTitle" placeholder="Title (e.g. NIGHT PHASE)"
+          style="background:#0d0000;border:1px solid #5a0000;border-radius:8px;color:#ff3333;font-size:13px;font-weight:700;font-family:'Arial Black',Arial,sans-serif;padding:10px 12px;outline:none;letter-spacing:2px;text-transform:uppercase;" />
+        <textarea id="announceMsg" placeholder="Message..."
+          style="background:#0d0000;border:1px solid #5a0000;border-radius:8px;color:#ddd;font-size:12px;font-family:Arial,sans-serif;padding:10px 12px;outline:none;resize:none;height:90px;line-height:1.6;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('announceModal')">CANCEL</button>
+        <button class="btn-apply" onclick="sendAnnouncement()">SEND</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Eliminate Modal -->
+  <div class="modal-overlay" id="eliminateModal">
+    <div class="modal" style="max-height:80vh;overflow-y:auto;">
+      <div class="modal-title">💀 ELIMINATE PLAYER</div>
+      <div id="eliminatePlayerList" style="display:flex;flex-direction:column;gap:10px;width:100%;"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" style="width:100%;" onclick="closeModal('eliminateModal')">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='main.html'">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">MAIN</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='chat.html'">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">CHAT</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='roles.html'">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="nav-label">ROLES</span>
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="nav-label">OPTIONS</span>
+      <div class="nav-dot"></div>
+    </div>
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  socket.on('connect', () => socket.emit('rejoin', { name: 'lou' }));
+
+  function openTimerModal() { document.getElementById('timerModal').classList.add('show'); }
+  function openPhaseModal() { document.getElementById('phaseModal').classList.add('show'); }
+  function openRoundModal() { document.getElementById('roundModal').classList.add('show'); }
+  function openWinnerModal() { document.getElementById('winnerModal').classList.add('show'); }
+  function openAnnounceModal() { document.getElementById('announceModal').classList.add('show'); }
+  function openEliminateModal() {
+    renderEliminateList();
+    document.getElementById('eliminateModal').classList.add('show');
+  }
+
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+  // Close on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); });
+  });
+
+  let lobbyPlayers = [];
+  let eliminatedSet = new Set();
+
+  socket.on('connect', () => {
+    socket.emit('rejoin', { name: 'lou' });
+    socket.emit('get_eliminated');
+  });
+
+  socket.on('state', ({ lobby }) => {
+    lobbyPlayers = lobby;
+  });
+
+  socket.on('elimination_update', (list) => {
+    eliminatedSet = new Set(list);
+  });
+
+  function renderEliminateList() {
+    const container = document.getElementById('eliminatePlayerList');
+    container.innerHTML = '';
+    if (!lobbyPlayers.length) {
+      container.innerHTML = '<p style="color:#5a0000;font-size:11px;letter-spacing:2px;text-align:center;">NO PLAYERS IN LOBBY</p>';
+      return;
+    }
+    lobbyPlayers.forEach(p => {
+      const isElim = eliminatedSet.has(p.name);
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:12px;background:#0d0000;border:1px solid #3d0000;border-radius:10px;padding:10px 12px;';
+      row.innerHTML = `
+        <img src="${encodeURI(p.photo)}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid #5a0000;${isElim ? 'filter:grayscale(1);opacity:0.5;' : ''}" />
+        <span style="flex:1;font-size:12px;font-weight:900;letter-spacing:2px;color:${isElim ? '#660000' : '#ddd'};font-family:'Arial Black',Arial,sans-serif;">${p.name}${isElim ? ' <span style="color:#cc1111;font-size:10px;">✕ ELIMINATED</span>' : ''}</span>
+        <button onclick="toggleEliminate('${p.name}', ${isElim})"
+          style="padding:7px 14px;border:none;border-radius:6px;font-size:10px;font-weight:900;letter-spacing:1px;cursor:pointer;font-family:'Arial Black',Arial,sans-serif;
+          background:${isElim ? 'linear-gradient(135deg,#004400,#007700)' : 'linear-gradient(135deg,#6b0000,#cc1111)'};color:#fff;
+          box-shadow:0 0 8px ${isElim ? 'rgba(0,200,0,0.3)' : 'rgba(200,0,0,0.3)'};">
+          ${isElim ? 'REVIVE' : 'ELIMINATE'}
+        </button>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function toggleEliminate(name, currentlyEliminated) {
+    socket.emit('set_eliminated', { name, eliminated: !currentlyEliminated });
+    // Optimistic update
+    if (currentlyEliminated) {
+      eliminatedSet.delete(name);
+    } else {
+      eliminatedSet.add(name);
+    }
+    renderEliminateList();
+  }
+
+  function startGame() {
+    socket.emit('start_game');
+    alert('Game started! Chat is now active.');
+  }
+
+  function applyTimer() {
+    const h = parseInt(document.getElementById('inputHours').value) || 0;
+    const m = parseInt(document.getElementById('inputMins').value) || 0;
+    const s = parseInt(document.getElementById('inputSecs').value) || 0;
+    const total = h * 3600 + m * 60 + s;
+    if (total <= 0) return;
+    socket.emit('set_timer', total);
+    closeModal('timerModal');
+  }
+
+  function applyPhase(phase) {
+    socket.emit('set_phase', phase);
+    closeModal('phaseModal');
+  }
+
+  function applyRound() {
+    const round = parseInt(document.getElementById('inputRound').value) || 1;
+    socket.emit('set_round', round);
+    closeModal('roundModal');
+  }
+
+  function sendAnnouncement() {
+    const title = document.getElementById('announceTitle').value.trim().toUpperCase();
+    const message = document.getElementById('announceMsg').value.trim();
+    if (!title && !message) return;
+    socket.emit('send_announcement', { title: title || 'ANNOUNCEMENT', message });
+    document.getElementById('announceTitle').value = '';
+    document.getElementById('announceMsg').value = '';
+    closeModal('announceModal');
+  }
+
+  function declareWinner() {
+    const winner = document.getElementById('inputWinner').value.trim().toUpperCase();
+    if (!winner) return;
+    socket.emit('declare_winner', winner);
+    closeModal('winnerModal');
+    alert(winner + ' declared as winner! Chat has been cleared.');
+  }
+</script>
+
+</body>
+</html>

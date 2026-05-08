@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Tycoon Mafia - Set Roles</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Arial Black', Arial, sans-serif;
+      color: #fff;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #2a0000;
+      background: #080808;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .back-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: #cc1111;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .header-info { display: flex; flex-direction: column; }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #cc1111;
+      text-shadow: 0 0 12px rgba(200,0,0,0.4);
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: #5a0000;
+      letter-spacing: 1px;
+    }
+
+    .header-logo {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(200,0,0,0.5));
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #3d0000, transparent);
+    }
+
+    /* Player list */
+    .list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scrollbar-width: none;
+    }
+
+    .list::-webkit-scrollbar { display: none; }
+
+    .empty-msg {
+      text-align: center;
+      color: #5a0000;
+      font-size: 12px;
+      letter-spacing: 2px;
+      margin-top: 60px;
+    }
+
+    .player-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: linear-gradient(160deg, #1a0000, #0d0000);
+      border: 1px solid #3d0000;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .player-row img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid #5a0000;
+      flex-shrink: 0;
+    }
+
+    .player-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .player-name {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ddd;
+    }
+
+    .role-select {
+      background: #0d0000;
+      border: 1px solid #5a0000;
+      border-radius: 6px;
+      color: #cc1111;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 6px 10px;
+      outline: none;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    .role-select:focus { border-color: #cc1111; }
+
+    .role-select option {
+      background: #0d0000;
+      color: #cc1111;
+    }
+
+    /* Save button */
+    .save-wrap {
+      padding: 16px 16px 32px;
+      flex-shrink: 0;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #8b0000, #cc1111);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(200,0,0,0.4);
+      transition: box-shadow 0.2s, transform 0.1s;
+      font-family: 'Arial Black', Arial, sans-serif;
+    }
+
+    .btn-save:hover { box-shadow: 0 0 32px rgba(200,0,0,0.7); }
+    .btn-save:active { transform: scale(0.98); }
+
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #cc1111;
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      padding: 10px 24px;
+      border-radius: 24px;
+      box-shadow: 0 0 20px rgba(200,0,0,0.6);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='option.html'">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="header-info">
+      <div class="header-title">SET ROLES</div>
+      <div class="header-sub">ASSIGN ROLES TO PLAYERS</div>
+    </div>
+    <img src="LOGO.png" alt="Logo" class="header-logo" />
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="list" id="playerList">
+    <p class="empty-msg" id="emptyMsg">LOADING PLAYERS...</p>
+  </div>
+
+  <div class="save-wrap">
+    <button class="btn-save" onclick="saveRoles()">SAVE ROLES</button>
+  </div>
+
+  <div class="toast" id="toast">ROLES SAVED</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  const ROLES = [
+    'MAFIA',
+    'POLICE',
+    'DOCTOR',
+    'CIVILIAN'
+  ];
+
+  let lobbyPlayers = [];
+
+  socket.on('connect', () => {
+    socket.emit('rejoin', { name: 'lou' });
+  });
+
+  socket.on('state', ({ lobby }) => {
+    lobbyPlayers = lobby;
+    renderList(lobby);
+  });
+
+  function renderList(players) {
+    const list = document.getElementById('playerList');
+    const empty = document.getElementById('emptyMsg');
+
+    if (players.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    list.innerHTML = '';
+
+    // Load saved roles if any
+    const saved = JSON.parse(sessionStorage.getItem('assignedRoles') || '{}');
+
+    players.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'player-row';
+
+      const options = ROLES.map(r =>
+        `<option value="${r}" ${saved[p.name] === r ? 'selected' : ''}>${r}</option>`
+      ).join('');
+
+      row.innerHTML = `
+        <img src="${encodeURI(p.photo)}" alt="${p.name}" />
+        <div class="player-info">
+          <div class="player-name">${p.name}</div>
+          <select class="role-select" data-player="${p.name}">
+            <option value="">— SELECT ROLE —</option>
+            ${options}
+          </select>
+        </div>
+      `;
+
+      list.appendChild(row);
+    });
+  }
+
+  function saveRoles() {
+    const selects = document.querySelectorAll('.role-select');
+    const roles = {};
+    selects.forEach(s => {
+      if (s.value) roles[s.dataset.player] = s.value;
+    });
+
+    sessionStorage.setItem('assignedRoles', JSON.stringify(roles));
+
+    // Broadcast roles to all players via server
+    socket.emit('set_roles', roles);
+
+    // Show toast
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+</script>
+
+</body>
+</html>

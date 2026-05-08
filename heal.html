@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Tycoon Mafia - Heal Player</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Arial Black', Arial, sans-serif;
+    }
+
+    .phone {
+      width: 100%;
+      min-height: 100vh;
+      background: #0a0a0a;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone::before { display: none; }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #002a00;
+      background: #080808;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .back-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: #00cc66;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .header-info { display: flex; flex-direction: column; }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #00cc66;
+      text-shadow: 0 0 12px rgba(0,204,102,0.4);
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: #005a00;
+      letter-spacing: 1px;
+    }
+
+    .header-logo {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(0,204,102,0.5));
+    }
+
+    /* Cooldown banner */
+    .cooldown-banner {
+      display: none;
+      background: rgba(0,100,0,0.15);
+      border: 1px solid #005a00;
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin: 10px 14px;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #00ff66;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .cooldown-banner.show { display: block; }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #005a00, transparent);
+      margin: 0 20px;
+      flex-shrink: 0;
+    }
+
+    /* Player Grid */
+    .grid-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 8px;
+      scrollbar-width: none;
+    }
+
+    .grid-wrap::-webkit-scrollbar { display: none; }
+
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    /* Player Card */
+    .card {
+      background: linear-gradient(160deg, #001a00 0%, #000d00 100%);
+      border: 1px solid #003d00;
+      border-radius: 14px;
+      padding: 14px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      border-color: #008b00;
+      box-shadow: 0 4px 24px rgba(0,180,0,0.3);
+    }
+
+    .card.healed {
+      border-color: #00cc66;
+      box-shadow: 0 0 16px rgba(0,204,102,0.4);
+    }
+
+    /* Avatar */
+    .avatar-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #003d00, #001a00);
+      border: 2px solid #005a00;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 0 14px rgba(0,180,0,0.3);
+      flex-shrink: 0;
+    }
+
+    .player-name {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ddd;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    /* Heal button */
+    .btn-heal {
+      width: 100%;
+      padding: 8px 0;
+      background: linear-gradient(135deg, #006600, #00aa00);
+      border: 1px solid #00cc66;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,204,102,0.3);
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .btn-heal:hover {
+      background: linear-gradient(135deg, #008b00, #00cc66);
+      box-shadow: 0 0 18px rgba(0,204,102,0.6);
+    }
+
+    .btn-heal:active { transform: scale(0.97); }
+
+    .btn-heal.active {
+      background: linear-gradient(135deg, #00cc66, #00ff66);
+      box-shadow: 0 0 20px rgba(0,255,102,0.6);
+    }
+
+    .btn-heal:disabled {
+      background: #001a00;
+      border-color: #003d00;
+      color: #004a00;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Me badge */
+    .me-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #fff;
+      background: #00cc66;
+      border-radius: 6px;
+      padding: 2px 5px;
+      font-weight: 700;
+    }
+
+    .card.is-me {
+      border-color: #00cc66;
+      box-shadow: 0 0 14px rgba(0,204,102,0.35);
+    }
+
+    .healed-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #00ff66;
+      background: rgba(0,100,0,0.3);
+      border: 1px solid #005a00;
+      border-radius: 6px;
+      padding: 2px 5px;
+      font-weight: 700;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px 20px 24px;
+      border-top: 1px solid #002a00;
+      background: #080808;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item.active { opacity: 1; }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      stroke: #00cc66;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-item.active svg {
+      filter: drop-shadow(0 0 6px rgba(0,204,102,0.8));
+    }
+
+    .nav-label {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: #00cc66;
+      font-weight: 700;
+    }
+
+    .nav-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #00cc66;
+      box-shadow: 0 0 6px #00ff00;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00cc66;
+      color: #000;
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      padding: 10px 24px;
+      border-radius: 24px;
+      box-shadow: 0 0 20px rgba(0,204,102,0.6);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Header -->
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='roles.html'">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="header-info">
+      <div class="header-title">HEAL PLAYER</div>
+      <div class="header-sub">DOCTOR ABILITY</div>
+    </div>
+    <img src="LOGO.png" alt="Logo" class="header-logo" />
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Cooldown banner -->
+  <div class="cooldown-banner" id="cooldownBanner">
+    ⚠ HEAL ON COOLDOWN — WAITING (<span id="cooldownTime">60:00</span>)
+  </div>
+
+  <!-- Player Grid -->
+  <div class="grid-wrap">
+    <div class="player-grid" id="playerGrid"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='main.html'">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">MAIN</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='chat.html'">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">CHAT</span>
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="nav-label">ROLES</span>
+      <div class="nav-dot"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">PLAYER HEALED</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const currentUser = sessionStorage.getItem('tmUser') || '';
+  let healed = null;
+  let cooldownSeconds = 0;
+
+  socket.on('connect', () => {
+    socket.emit('rejoin', { name: currentUser });
+    socket.emit('get_heal_status');
+  });
+
+  socket.on('state', ({ lobby }) => {
+    renderGrid(lobby);
+  });
+
+  socket.on('heal_status', ({ onCooldown, remainingTime }) => {
+    if (onCooldown) {
+      cooldownSeconds = remainingTime;
+      document.getElementById('cooldownBanner').classList.add('show');
+      updateCooldownDisplay();
+    } else {
+      document.getElementById('cooldownBanner').classList.remove('show');
+    }
+    updateHealButtons(!onCooldown);
+  });
+
+  function renderGrid(players) {
+    const grid = document.getElementById('playerGrid');
+    grid.innerHTML = '';
+
+    if (players.length === 0) {
+      grid.innerHTML = '<p style="color:#005a00;font-size:12px;letter-spacing:2px;text-align:center;grid-column:span 2;padding:40px 0;">WAITING FOR PLAYERS...</p>';
+      return;
+    }
+
+    players.forEach((p) => {
+      const isMe = p.name === currentUser.toUpperCase();
+      const card = document.createElement('div');
+      card.className = 'card' + (isMe ? ' is-me' : '');
+      card.dataset.pid = p.id;
+      card.innerHTML = `
+        ${isMe ? '<span class="me-badge">YOU</span>' : ''}
+        <div class="avatar-wrap">
+          <img src="${encodeURI(p.photo)}" alt="${p.name}"
+               style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+        </div>
+        <div class="player-name">${p.name}</div>
+        <button class="btn-heal" onclick="castHeal(this, '${p.id}')" ${isMe ? 'disabled' : ''}>HEAL</button>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function updateHealButtons(enabled) {
+    document.querySelectorAll('.btn-heal').forEach(btn => {
+      if (!btn.closest('.card').classList.contains('is-me')) {
+        btn.disabled = !enabled;
+      }
+    });
+  }
+
+  function castHeal(btn, pid) {
+    document.querySelectorAll('.btn-heal').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.card').forEach(c => {
+      c.classList.remove('healed');
+      const badge = c.querySelector('.healed-badge');
+      if (badge) badge.remove();
+    });
+    
+    if (healed === pid) { healed = null; return; }
+    
+    btn.classList.add('active');
+    btn.closest('.card').classList.add('healed');
+    
+    // Add healed badge
+    const badge = document.createElement('span');
+    badge.className = 'healed-badge';
+    badge.textContent = 'HEALING';
+    btn.closest('.card').appendChild(badge);
+    
+    healed = pid;
+
+    // Emit heal action
+    socket.emit('heal_player', { targetId: pid });
+
+    // Start cooldown immediately
+    cooldownSeconds = 3600;
+    document.getElementById('cooldownBanner').classList.add('show');
+    updateHealButtons(false);
+    updateCooldownDisplay();
+
+    // Show toast
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  function updateCooldownDisplay() {
+    if (cooldownSeconds <= 0) {
+      document.getElementById('cooldownBanner').classList.remove('show');
+      updateHealButtons(true);
+      return;
+    }
+    
+    const mins = Math.floor(cooldownSeconds / 60);
+    const secs = cooldownSeconds % 60;
+    document.getElementById('cooldownTime').textContent = 
+      `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    
+    cooldownSeconds--;
+    setTimeout(updateCooldownDisplay, 1000);
+  }
+
+  socket.on('announcement', ({ title, message }) => showAnnouncement(title, message));
+</script>
+
+<!-- Announcement Modal -->
+<div id="announcementOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.88);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#1a0000,#0d0000);border:2px solid #cc1111;border-radius:20px;padding:32px 24px;width:88%;max-width:340px;text-align:center;box-shadow:0 0 60px rgba(200,0,0,0.5);display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <div style="font-size:28px;">📢</div>
+    <div id="annTitle" style="font-size:15px;font-weight:900;letter-spacing:4px;color:#cc1111;font-family:'Arial Black',Arial,sans-serif;text-shadow:0 0 16px rgba(200,0,0,0.7);"></div>
+    <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,#cc1111,transparent);"></div>
+    <div id="annMessage" style="font-size:13px;color:#ccc;line-height:1.7;font-family:Arial,sans-serif;"></div>
+    <button onclick="closeAnnouncement()" style="margin-top:6px;padding:12px 40px;background:linear-gradient(135deg,#8b0000,#cc1111);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:900;letter-spacing:3px;cursor:pointer;font-family:'Arial Black',Arial,sans-serif;box-shadow:0 0 16px rgba(200,0,0,0.5);">OKAY</button>
+  </div>
+</div>
+<script>
+  function showAnnouncement(title, message) {
+    document.getElementById('annTitle').textContent = title;
+    document.getElementById('annMessage').textContent = message;
+    const el = document.getElementById('announcementOverlay');
+    el.style.display = 'flex';
+    el.style.animation = 'fadeInAnn 0.3s ease';
+  }
+  function closeAnnouncement() {
+    document.getElementById('announcementOverlay').style.display = 'none';
+  }
+</script>
+<style>@keyframes fadeInAnn { from { opacity:0; } to { opacity:1; } }</style>
+
+</body>
+</html>

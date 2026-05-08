@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Tycoon Mafia - Chat</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+      color: #fff;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #2a0000;
+      background: #080808;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .back-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: #cc1111;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .header-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #cc1111;
+      font-family: 'Arial Black', Arial, sans-serif;
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: #5a0000;
+      letter-spacing: 1px;
+    }
+
+    .header-logo {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(200,0,0,0.5));
+    }
+
+    /* Messages area */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scrollbar-width: none;
+    }
+
+    .messages::-webkit-scrollbar { display: none; }
+
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .msg-row.mine {
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #3d0000;
+      flex-shrink: 0;
+    }
+
+    .msg-bubble-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-width: 70%;
+    }
+
+    .msg-row.mine .msg-bubble-wrap {
+      align-items: flex-end;
+    }
+
+    .msg-name {
+      font-size: 10px;
+      color: #660000;
+      letter-spacing: 1px;
+      font-weight: 700;
+      padding: 0 4px;
+    }
+
+    .msg-bubble {
+      background: #1a0000;
+      border: 1px solid #3d0000;
+      border-radius: 12px 12px 12px 2px;
+      padding: 9px 13px;
+      font-size: 13px;
+      color: #ddd;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .msg-row.mine .msg-bubble {
+      background: linear-gradient(135deg, #6b0000, #aa0000);
+      border-color: #cc1111;
+      border-radius: 12px 12px 2px 12px;
+      color: #fff;
+    }
+
+    .msg-time {
+      font-size: 9px;
+      color: #3d0000;
+      padding: 0 4px;
+    }
+
+    /* System message */
+    .msg-system {
+      text-align: center;
+      font-size: 10px;
+      color: #5a0000;
+      letter-spacing: 1px;
+      padding: 4px 0;
+    }
+
+    /* Input bar */
+    .input-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px 24px;
+      border-top: 1px solid #2a0000;
+      background: #080808;
+      flex-shrink: 0;
+    }
+
+    .input-bar input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid #3d0000;
+      border-radius: 24px;
+      padding: 11px 16px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-bar input::placeholder { color: #3d0000; }
+    .input-bar input:focus { border-color: #8b0000; }
+
+    .send-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b0000, #cc1111);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px rgba(200,0,0,0.4);
+      transition: box-shadow 0.2s, transform 0.1s;
+    }
+
+    .send-btn:hover { box-shadow: 0 0 20px rgba(200,0,0,0.7); }
+    .send-btn:active { transform: scale(0.95); }
+
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px 20px 24px;
+      border-top: 1px solid #2a0000;
+      background: #080808;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item.active { opacity: 1; }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      stroke: #cc1111;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-item.active svg { filter: drop-shadow(0 0 6px rgba(200,0,0,0.8)); }
+
+    .nav-label {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: #cc1111;
+      font-weight: 700;
+      font-family: 'Arial Black', Arial, sans-serif;
+    }
+
+    .nav-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #cc1111;
+      box-shadow: 0 0 6px #ff0000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='main.html'">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="header-info">
+      <div class="header-title">FAMILY CHAT</div>
+      <div class="header-sub" id="onlineCount">— PLAYERS ONLINE</div>
+    </div>
+    <img src="LOGO.png" alt="Logo" class="header-logo" />
+  </div>
+
+  <!-- Messages -->
+  <div class="messages" id="messages">
+    <div class="msg-system" id="chatStatus">LOADING CHAT...</div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-bar">
+    <input type="text" id="msgInput" placeholder="Type a message..." maxlength="200" autocomplete="off" />
+    <button class="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='main.html'">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">MAIN</span>
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">CHAT</span>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='roles.html'">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="nav-label">ROLES</span>
+    </div>
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const currentUser = sessionStorage.getItem('tmUser') || 'UNKNOWN';
+  const currentPhoto = sessionStorage.getItem('tmPhoto') || '';
+
+  // Rejoin to get state (online count etc.)
+  socket.on('connect', () => {
+    socket.emit('rejoin', { name: currentUser });
+    socket.emit('get_chat_history');
+  });
+
+  socket.on('state', ({ lobby }) => {
+    document.getElementById('onlineCount').textContent =
+      lobby.length + ' PLAYER' + (lobby.length !== 1 ? 'S' : '') + ' ONLINE';
+  });
+
+  // Load chat history on connect
+  socket.on('chat_history', (messages) => {
+    const container = document.getElementById('messages');
+    container.innerHTML = '';
+    if (messages.length === 0) {
+      container.innerHTML = '<div class="msg-system">CHAT PERSISTS DURING THE GAME — CLEARED WHEN WINNER IS DECLARED</div>';
+    } else {
+      messages.forEach(msg => {
+        appendMessage({ ...msg, mine: msg.name === currentUser.toUpperCase() });
+      });
+    }
+  });
+
+  // Receive broadcast messages
+  socket.on('chat_message', ({ name, photo, text, time }) => {
+    // Remove initial status message if present
+    const statusEl = document.getElementById('chatStatus');
+    if (statusEl) statusEl.remove();
+    appendMessage({ name, photo, text, time, mine: name === currentUser.toUpperCase() });
+  });
+
+  // Chat cleared when winner declared
+  socket.on('chat_cleared', () => {
+    const container = document.getElementById('messages');
+    container.innerHTML = '<div class="msg-system">GAME OVER — CHAT CLEARED</div>';
+  });
+
+  socket.on('winner_declared', (winnerName) => {
+    const container = document.getElementById('messages');
+    container.innerHTML = '<div class="msg-system">🏆 ' + winnerName + ' WON THE GAME — CHAT CLEARED</div>';
+  });
+
+  function sendMessage() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    socket.emit('chat_message', {
+      name: currentUser,
+      photo: currentPhoto,
+      text
+    });
+
+    input.value = '';
+    input.focus();
+  }
+
+  // Send on Enter
+  document.getElementById('msgInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  function appendMessage({ name, photo, text, time, mine }) {
+    const messages = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row' + (mine ? ' mine' : '');
+
+    const avatarSrc = photo ? encodeURI(photo) : '';
+    const avatarEl = avatarSrc
+      ? `<img class="msg-avatar" src="${avatarSrc}" alt="${name}" />`
+      : `<div class="msg-avatar" style="background:#1a0000;border:1px solid #3d0000;display:flex;align-items:center;justify-content:center;font-size:11px;color:#660000;font-weight:700;">${name.charAt(0)}</div>`;
+
+    row.innerHTML = `
+      ${avatarEl}
+      <div class="msg-bubble-wrap">
+        ${!mine ? `<span class="msg-name">${name}</span>` : ''}
+        <div class="msg-bubble">${escapeHtml(text)}</div>
+        <span class="msg-time">${time}</span>
+      </div>
+    `;
+
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  socket.on('announcement', ({ title, message }) => showAnnouncement(title, message));
+</script>
+
+<!-- Announcement Modal -->
+<div id="announcementOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.88);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#1a0000,#0d0000);border:2px solid #cc1111;border-radius:20px;padding:32px 24px;width:88%;max-width:340px;text-align:center;box-shadow:0 0 60px rgba(200,0,0,0.5);display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <div style="font-size:28px;">📢</div>
+    <div id="annTitle" style="font-size:15px;font-weight:900;letter-spacing:4px;color:#cc1111;font-family:'Arial Black',Arial,sans-serif;text-shadow:0 0 16px rgba(200,0,0,0.7);"></div>
+    <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,#cc1111,transparent);"></div>
+    <div id="annMessage" style="font-size:13px;color:#ccc;line-height:1.7;font-family:Arial,sans-serif;"></div>
+    <button onclick="closeAnnouncement()" style="margin-top:6px;padding:12px 40px;background:linear-gradient(135deg,#8b0000,#cc1111);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:900;letter-spacing:3px;cursor:pointer;font-family:'Arial Black',Arial,sans-serif;box-shadow:0 0 16px rgba(200,0,0,0.5);">OKAY</button>
+  </div>
+</div>
+<script>
+  function showAnnouncement(title, message) {
+    document.getElementById('annTitle').textContent = title;
+    document.getElementById('annMessage').textContent = message;
+    const el = document.getElementById('announcementOverlay');
+    el.style.display = 'flex';
+    el.style.animation = 'fadeInAnn 0.3s ease';
+  }
+  function closeAnnouncement() {
+    document.getElementById('announcementOverlay').style.display = 'none';
+  }
+</script>
+<style>@keyframes fadeInAnn { from { opacity:0; } to { opacity:1; } }</style>
+
+</body>
+</html>
+""

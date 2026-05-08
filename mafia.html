@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Tycoon Mafia - Eliminate</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Arial Black', Arial, sans-serif;
+    }
+
+    .phone {
+      width: 100%;
+      min-height: 100vh;
+      background: #0a0a0a;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #1a002a;
+      background: #080808;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .back-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: #9900cc;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .header-info { display: flex; flex-direction: column; }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #9900cc;
+      text-shadow: 0 0 12px rgba(153,0,204,0.4);
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: #440066;
+      letter-spacing: 1px;
+    }
+
+    .header-logo {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(153,0,204,0.5));
+    }
+
+    .cooldown-banner.show { display: block; }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #660099, transparent);
+      margin: 0 20px;
+      flex-shrink: 0;
+    }
+
+    .grid-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 8px;
+      scrollbar-width: none;
+    }
+
+    .grid-wrap::-webkit-scrollbar { display: none; }
+
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .card {
+      background: linear-gradient(160deg, #0d001a 0%, #07000d 100%);
+      border: 1px solid #2a003d;
+      border-radius: 14px;
+      padding: 14px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      border-color: #660099;
+      box-shadow: 0 4px 24px rgba(100,0,180,0.3);
+    }
+
+    .card.targeted {
+      border-color: #9900cc;
+      box-shadow: 0 0 16px rgba(153,0,204,0.5);
+    }
+
+    .avatar-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #2a003d, #0d001a);
+      border: 2px solid #440066;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 0 14px rgba(100,0,180,0.3);
+      flex-shrink: 0;
+    }
+
+    .player-name {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ddd;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .btn-eliminate {
+      width: 100%;
+      padding: 8px 0;
+      background: linear-gradient(135deg, #330044, #660099);
+      border: 1px solid #9900cc;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(153,0,204,0.3);
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .btn-eliminate:hover {
+      background: linear-gradient(135deg, #550077, #8800bb);
+      box-shadow: 0 0 18px rgba(153,0,204,0.6);
+    }
+
+    .btn-eliminate:active { transform: scale(0.97); }
+
+    .btn-eliminate:disabled {
+      background: #0d001a;
+      border-color: #2a003d;
+      color: #330044;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .me-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #fff;
+      background: #9900cc;
+      border-radius: 6px;
+      padding: 2px 5px;
+      font-weight: 700;
+    }
+
+    .card.is-me {
+      border-color: #9900cc;
+      box-shadow: 0 0 14px rgba(153,0,204,0.35);
+    }
+
+    /* Confirm + Result Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: linear-gradient(160deg, #1a001a, #0d000d);
+      border: 2px solid #9900cc;
+      border-radius: 16px;
+      padding: 32px 24px;
+      width: 90%;
+      max-width: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 0 40px rgba(153,0,204,0.4);
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #9900cc;
+      text-shadow: 0 0 12px rgba(153,0,204,0.5);
+    }
+
+    .modal-target {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #fff;
+    }
+
+    .modal-sub {
+      font-size: 10px;
+      color: #660099;
+      letter-spacing: 2px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid #2a003d;
+      border-radius: 8px;
+      color: #440066;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-cancel:hover { border-color: #660099; color: #9900cc; }
+
+    .btn-confirm {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #330044, #660099);
+      border: 1px solid #9900cc;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      box-shadow: 0 0 12px rgba(153,0,204,0.4);
+      transition: box-shadow 0.2s;
+    }
+
+    .btn-confirm:hover { box-shadow: 0 0 20px rgba(153,0,204,0.7); }
+
+    .btn-close {
+      padding: 12px 40px;
+      background: linear-gradient(135deg, #330044, #660099);
+      border: 1px solid #9900cc;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      box-shadow: 0 0 12px rgba(153,0,204,0.4);
+      transition: box-shadow 0.2s;
+    }
+
+    .btn-close:hover { box-shadow: 0 0 20px rgba(153,0,204,0.7); }
+
+    /* Bottom nav */
+    .bottom-nav {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px 20px 24px;
+      border-top: 1px solid #1a002a;
+      background: #080808;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item.active { opacity: 1; }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      stroke: #9900cc;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-item.active svg { filter: drop-shadow(0 0 6px rgba(153,0,204,0.8)); }
+
+    .nav-label {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: #9900cc;
+      font-weight: 700;
+    }
+
+    .nav-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #9900cc;
+      box-shadow: 0 0 6px #aa00ff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='roles.html'">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="header-info">
+      <div class="header-title">ELIMINATE</div>
+      <div class="header-sub">MAFIA ABILITY</div>
+    </div>
+    <img src="LOGO.png" alt="Logo" class="header-logo" />
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="grid-wrap">
+    <div class="player-grid" id="playerGrid"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='main.html'">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">MAIN</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='chat.html'">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">CHAT</span>
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="nav-label">ROLES</span>
+      <div class="nav-dot"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-title">🕴️ CONFIRM TARGET</div>
+    <div class="modal-sub">YOU ARE TARGETING</div>
+    <div class="modal-target" id="confirmName"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="cancelEliminate()">CANCEL</button>
+      <button class="btn-confirm" onclick="confirmEliminate()">ELIMINATE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal">
+    <div class="modal-title">🕴️ TARGET MARKED</div>
+    <div class="modal-sub">YOU HAVE TARGETED</div>
+    <div class="modal-target" id="successName"></div>
+    <div class="modal-sub" style="margin-top:4px;">FOR ELIMINATION</div>
+    <button class="btn-close" onclick="document.getElementById('successModal').classList.remove('show')">CLOSE</button>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const currentUser = sessionStorage.getItem('tmUser') || '';
+  let pendingTargetId = null;
+  let pendingTargetName = null;
+
+  socket.on('connect', () => {
+    socket.emit('rejoin', { name: currentUser });
+  });
+
+  socket.on('state', ({ lobby }) => {
+    renderGrid(lobby);
+  });
+
+  socket.on('eliminate_success', ({ target }) => {
+    document.getElementById('successName').textContent = target;
+    document.getElementById('successModal').classList.add('show');
+  });
+
+  function renderGrid(players) {
+    const grid = document.getElementById('playerGrid');
+    grid.innerHTML = '';
+
+    if (players.length === 0) {
+      grid.innerHTML = '<p style="color:#440066;font-size:12px;letter-spacing:2px;text-align:center;grid-column:span 2;padding:40px 0;">WAITING FOR PLAYERS...</p>';
+      return;
+    }
+
+    players.forEach(p => {
+      const isMe = p.name === currentUser.toUpperCase();
+      const card = document.createElement('div');
+      card.className = 'card' + (isMe ? ' is-me' : '');
+      card.dataset.pid = p.id;
+      card.dataset.name = p.name;
+      card.innerHTML = `
+        ${isMe ? '<span class="me-badge">YOU</span>' : ''}
+        <div class="avatar-wrap">
+          <img src="${encodeURI(p.photo)}" alt="${p.name}"
+               style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+        </div>
+        <div class="player-name">${p.name}</div>
+        <button class="btn-eliminate" onclick="selectTarget(this, '${p.id}', '${p.name}')" ${isMe ? 'disabled' : ''}>ELIMINATE</button>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function selectTarget(btn, pid, name) {
+    pendingTargetId = pid;
+    pendingTargetName = name;
+    document.getElementById('confirmName').textContent = name;
+    document.getElementById('confirmModal').classList.add('show');
+  }
+
+  function cancelEliminate() {
+    pendingTargetId = null;
+    pendingTargetName = null;
+    document.getElementById('confirmModal').classList.remove('show');
+  }
+
+  function confirmEliminate() {
+    document.getElementById('confirmModal').classList.remove('show');
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('targeted'));
+    const card = document.querySelector(`.card[data-name="${pendingTargetName}"]`);
+    if (card) card.classList.add('targeted');
+    socket.emit('eliminate_player', { targetId: pendingTargetId });
+  }
+
+  socket.on('announcement', ({ title, message }) => showAnnouncement(title, message));
+</script>
+
+<!-- Announcement Modal -->
+<div id="announcementOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.88);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(160deg,#1a0000,#0d0000);border:2px solid #cc1111;border-radius:20px;padding:32px 24px;width:88%;max-width:340px;text-align:center;box-shadow:0 0 60px rgba(200,0,0,0.5);display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <div style="font-size:28px;">📢</div>
+    <div id="annTitle" style="font-size:15px;font-weight:900;letter-spacing:4px;color:#cc1111;font-family:'Arial Black',Arial,sans-serif;text-shadow:0 0 16px rgba(200,0,0,0.7);"></div>
+    <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,#cc1111,transparent);"></div>
+    <div id="annMessage" style="font-size:13px;color:#ccc;line-height:1.7;font-family:Arial,sans-serif;"></div>
+    <button onclick="closeAnnouncement()" style="margin-top:6px;padding:12px 40px;background:linear-gradient(135deg,#8b0000,#cc1111);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:900;letter-spacing:3px;cursor:pointer;font-family:'Arial Black',Arial,sans-serif;box-shadow:0 0 16px rgba(200,0,0,0.5);">OKAY</button>
+  </div>
+</div>
+<script>
+  function showAnnouncement(title, message) {
+    document.getElementById('annTitle').textContent = title;
+    document.getElementById('annMessage').textContent = message;
+    const el = document.getElementById('announcementOverlay');
+    el.style.display = 'flex';
+    el.style.animation = 'fadeInAnn 0.3s ease';
+  }
+  function closeAnnouncement() {
+    document.getElementById('announcementOverlay').style.display = 'none';
+  }
+</script>
+<style>@keyframes fadeInAnn { from { opacity:0; } to { opacity:1; } }</style>
+</script>
+
+</body>
+</html>

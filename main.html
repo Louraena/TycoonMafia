@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Tycoon Mafia - Main</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Arial Black', Arial, sans-serif;
+    }
+
+    .phone {
+      width: 100%;
+      min-height: 100vh;
+      background: #0a0a0a;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone::before { display: none; }
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 20px 10px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-logo img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 8px rgba(200,0,0,0.7));
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+    }
+
+    .header-title .t1 {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: #cc1111;
+      text-shadow: 0 0 14px rgba(200,0,0,0.6);
+    }
+
+    .header-title .t2 {
+      font-size: 10px;
+      letter-spacing: 6px;
+      color: #660000;
+      font-weight: 700;
+    }
+
+    .phase-badge {
+      position: absolute;
+      right: 20px;
+      background: rgba(139,0,0,0.3);
+      border: 1px solid #5a0000;
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #ff4444;
+      font-weight: 700;
+    }
+
+    /* ===== ROUND INFO ===== */
+    .round-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 20px 10px;
+      flex-shrink: 0;
+    }
+
+    .round-label {
+      font-size: 11px;
+      color: #660000;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    .timer {
+      font-size: 13px;
+      color: #ff3333;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(255,0,0,0.5);
+    }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #5a0000, transparent);
+      margin: 0 20px;
+      flex-shrink: 0;
+    }
+
+    /* ===== PLAYER GRID ===== */
+    .grid-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 8px;
+      scrollbar-width: none;
+    }
+
+    .grid-wrap::-webkit-scrollbar { display: none; }
+
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    /* ===== PLAYER CARD ===== */
+    .card {
+      background: linear-gradient(160deg, #1a0000 0%, #0d0000 100%);
+      border: 1px solid #3d0000;
+      border-radius: 14px;
+      padding: 14px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      border-color: #8b0000;
+      box-shadow: 0 4px 24px rgba(180,0,0,0.3);
+    }
+
+    .card.voted {
+      border-color: #cc1111;
+      box-shadow: 0 0 16px rgba(200,0,0,0.4);
+    }
+
+    /* Rank badge top-right */
+    .rank-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #ff4444;
+      background: rgba(139,0,0,0.3);
+      border: 1px solid #5a0000;
+      border-radius: 6px;
+      padding: 2px 5px;
+      font-weight: 700;
+    }
+
+    /* Avatar */
+    .avatar-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #3d0000, #1a0000);
+      border: 2px solid #5a0000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 0 14px rgba(180,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    .avatar-wrap svg {
+      width: 56px;
+      height: 56px;
+    }
+
+    .player-name {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ddd;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    /* Vote button */
+    .btn-vote {
+      width: 100%;
+      padding: 8px 0;
+      background: linear-gradient(135deg, #6b0000, #aa0000);
+      border: 1px solid #cc1111;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(200,0,0,0.3);
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .btn-vote:hover {
+      background: linear-gradient(135deg, #8b0000, #cc1111);
+      box-shadow: 0 0 18px rgba(200,0,0,0.6);
+    }
+
+    .btn-vote:active { transform: scale(0.97); }
+
+    .btn-vote.active {
+      background: linear-gradient(135deg, #cc1111, #ff3333);
+      box-shadow: 0 0 20px rgba(255,0,0,0.6);
+    }
+
+    /* Locked vote state */
+    .btn-vote:disabled {
+      background: #1a0000;
+      border-color: #3d0000;
+      color: #4a0000;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Me badge */
+    .me-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #fff;
+      background: #cc1111;
+      border-radius: 6px;
+      padding: 2px 5px;
+      font-weight: 700;
+    }
+
+    .card.is-me {
+      border-color: #cc1111;
+      box-shadow: 0 0 14px rgba(200,0,0,0.35);
+    }
+
+    /* Eliminated card */
+    .card.eliminated {
+      filter: grayscale(0.7);
+      opacity: 0.75;
+    }
+
+    .elim-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.55);
+      z-index: 2;
+      animation: elimFadeIn 0.4s ease;
+      pointer-events: none;
+    }
+
+    @keyframes elimFadeIn {
+      from { opacity: 0; transform: scale(1.1); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .elim-x {
+      font-size: 52px;
+      font-weight: 900;
+      color: #cc1111;
+      text-shadow: 0 0 20px rgba(200,0,0,0.9), 0 0 40px rgba(200,0,0,0.5);
+      line-height: 1;
+      font-family: 'Arial Black', Arial, sans-serif;
+    }
+
+    .elim-label {
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #ff4444;
+      font-family: 'Arial Black', Arial, sans-serif;
+      margin-top: 4px;
+      text-shadow: 0 0 8px rgba(200,0,0,0.8);
+    }
+
+    /* Vote count badge */
+    .vote-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b0000, #cc1111);
+      border: 2px solid #0a0a0a;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(200,0,0,0.7);
+      font-family: 'Arial Black', Arial, sans-serif;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .vote-count.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Vote confirm modal */
+    .vote-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      animation: fadeInVote 0.25s ease;
+    }
+
+    .vote-modal-overlay.show { display: flex; }
+
+    @keyframes fadeInVote {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .vote-modal {
+      background: linear-gradient(160deg, #1a0000, #0d0000);
+      border: 2px solid #cc1111;
+      border-radius: 20px;
+      padding: 32px 24px;
+      width: 88%;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 0 60px rgba(200,0,0,0.5);
+      text-align: center;
+      animation: scaleInVote 0.25s ease;
+    }
+
+    @keyframes scaleInVote {
+      from { transform: scale(0.88); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+
+    .vote-modal-icon { font-size: 30px; line-height: 1; }
+
+    .vote-modal-title {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #cc1111;
+      text-shadow: 0 0 14px rgba(200,0,0,0.6);
+    }
+
+    .vote-modal-name {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #fff;
+    }
+
+    .vote-modal-sub {
+      font-size: 11px;
+      color: #660000;
+      letter-spacing: 1px;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    .vote-modal-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .btn-vote-cancel {
+      flex: 1;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid #3d0000;
+      border-radius: 8px;
+      color: #660000;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-vote-cancel:hover { border-color: #8b0000; color: #cc1111; }
+
+    .btn-vote-confirm {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #8b0000, #cc1111);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-family: 'Arial Black', Arial, sans-serif;
+      box-shadow: 0 0 14px rgba(200,0,0,0.5);
+      transition: box-shadow 0.2s, transform 0.1s;
+    }
+
+    .btn-vote-confirm:hover { box-shadow: 0 0 24px rgba(200,0,0,0.8); }
+    .btn-vote-confirm:active { transform: scale(0.97); }
+
+    /* Queue screen overlay */
+    #queueScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      text-align: center;
+      padding: 40px;
+    }
+
+    #queueScreen img {
+      width: 70px;
+      filter: drop-shadow(0 0 12px rgba(200,0,0,0.6));
+    }
+
+    .queue-title {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: #cc1111;
+      text-shadow: 0 0 16px rgba(200,0,0,0.5);
+    }
+
+    .queue-msg {
+      font-size: 12px;
+      color: #888;
+      letter-spacing: 1px;
+      line-height: 1.8;
+      font-family: Arial, sans-serif;
+    }
+
+    .queue-pos {
+      font-size: 48px;
+      font-weight: 900;
+      color: #ff3333;
+      text-shadow: 0 0 20px rgba(255,0,0,0.6);
+      line-height: 1;
+    }
+
+    .pulse-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #cc1111;
+      animation: pdot 1.4s infinite;
+    }
+
+    @keyframes pdot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(200,0,0,0.6); }
+      50%       { box-shadow: 0 0 0 12px rgba(200,0,0,0); }
+    }
+
+    .vote-locked-banner {
+      display: none;
+      background: rgba(139,0,0,0.15);
+      border: 1px solid #5a0000;
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin: 0 14px;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #ff4444;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .vote-locked-banner.show { display: block; }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px 20px 24px;
+      border-top: 1px solid #2a0000;
+      background: #080808;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item.active { opacity: 1; }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      stroke: #cc1111;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-item.active svg {
+      filter: drop-shadow(0 0 6px rgba(200,0,0,0.8));
+    }
+
+    .nav-label {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: #cc1111;
+      font-weight: 700;
+    }
+
+    .nav-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #cc1111;
+      box-shadow: 0 0 6px #ff0000;
+    }
+
+
+  </style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo">
+      <img src="LOGO.png" alt="Logo" onclick="logoClick()" style="cursor:pointer;" />
+      <div class="header-title">
+        <span class="t1">TYCOON</span>
+        <span class="t2">MAFIA</span>
+      </div>
+    </div>
+    <div class="phase-badge" id="phaseBadge" style="display:none;">ROUND 1</div>
+  </div>
+
+  <!-- Round bar -->
+  <div class="round-bar">
+    <span class="round-label" id="phaseLabel">VOTE PHASE</span>
+    <span class="timer" id="timer">02:30</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Voting locked banner -->
+  <div class="vote-locked-banner" id="lockedBanner">
+    ⚠ VOTING LOCKED — WAITING FOR MORE PLAYERS (<span id="playerCountDisplay">1</span>/6)
+  </div>
+
+  <!-- Player Grid -->
+  <div class="grid-wrap">
+    <div class="player-grid" id="playerGrid"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <!-- Main / Vote -->
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">MAIN</span>
+      <div class="nav-dot"></div>
+    </div>
+    <!-- Messages -->
+    <div class="nav-item" onclick="window.location.href='chat.html'">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">CHAT</span>
+    </div>
+    <!-- Roles -->
+    <div class="nav-item" onclick="window.location.href='roles.html'">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="nav-label">ROLES</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Vote Confirm Modal -->
+<div class="vote-modal-overlay" id="voteModal">
+  <div class="vote-modal">
+    <div class="vote-modal-icon">🗳️</div>
+    <div class="vote-modal-title">CAST YOUR VOTE</div>
+    <div class="vote-modal-name" id="voteTargetName"></div>
+    <div class="vote-modal-sub">Are you sure you want to vote<br><strong id="voteTargetName2" style="color:#ff4444;"></strong> as a Mafia member?</div>
+    <div class="vote-modal-actions">
+      <button class="btn-vote-cancel" onclick="cancelVote()">CANCEL</button>
+      <button class="btn-vote-confirm" onclick="confirmVote()">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
+<!-- Queue waiting screen -->
+<div id="queueScreen">
+  <img src="LOGO.png" alt="Logo" />
+  <div class="queue-title">LOBBY FULL</div>
+  <div class="queue-pos" id="queuePos">1</div>
+  <div class="queue-msg">You are in the waiting queue.<br>You'll join automatically when a slot opens.</div>
+  <div class="pulse-dot"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const currentUser = sessionStorage.getItem('tmUser') || '';
+  const ranks = ['DON','CAPO','SOLDIER','CAPO','SOLDIER','SOLDIER','CAPO','SOLDIER'];
+  let isInQueue = false;
+  let voted = null;
+  let pendingVoteTarget = null;
+  let currentVoteCounts = {};
+  let currentPlayers = [];
+  let lastLobbyKey = '';
+  let eliminatedPlayers = new Set();
+
+  // On connect, rejoin the lobby with stored username
+  function logoClick() {
+    if (currentUser.toLowerCase() === 'lou') {
+      window.location.href = 'option.html';
+    }
+  }
+
+  socket.on('connect', () => {
+    if (currentUser) {
+      socket.emit('rejoin', { name: currentUser });
+      socket.emit('get_vote_counts');
+      socket.emit('get_eliminated');
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  socket.on('rejoined', ({ status, position }) => {
+    if (status === 'queue') {
+      isInQueue = true;
+      document.getElementById('queueScreen').style.display = 'flex';
+      document.getElementById('queuePos').textContent = position;
+    }
+  });
+
+  socket.on('promoted', () => {
+    isInQueue = false;
+    sessionStorage.removeItem('tmQueue');
+    document.getElementById('queueScreen').style.display = 'none';
+  });
+
+  socket.on('state', ({ lobby, queue, votingEnabled }) => {
+    currentPlayers = lobby;
+    // Only re-render if player list changed (join/leave), otherwise just patch badges
+    const newKey = lobby.map(p => p.id).join(',');
+    if (newKey !== lastLobbyKey) {
+      lastLobbyKey = newKey;
+      renderGrid(lobby, votingEnabled);
+    } else {
+      updateVoteBadges();
+    }
+    updateBanner(lobby.length, votingEnabled);
+    if (isInQueue) {
+      const me = queue.find(p => p.name === currentUser.toUpperCase());
+      if (me) document.getElementById('queuePos').textContent = me.position;
+    }
+  });
+
+  socket.on('vote_counts', (counts) => {
+    currentVoteCounts = counts;
+    updateVoteBadges();
+  });
+
+  socket.on('elimination_update', (list) => {
+    eliminatedPlayers = new Set(list);
+    applyEliminationOverlays();
+  });
+
+  function applyEliminationOverlays() {
+    document.querySelectorAll('.card').forEach(card => {
+      const name = card.dataset.name;
+      const isElim = eliminatedPlayers.has(name);
+      card.classList.toggle('eliminated', isElim);
+      // Remove old overlay
+      const old = card.querySelector('.elim-overlay');
+      if (old) old.remove();
+      if (isElim) {
+        const overlay = document.createElement('div');
+        overlay.className = 'elim-overlay';
+        overlay.innerHTML = '<div class="elim-x">✕</div><div class="elim-label">ELIMINATED</div>';
+        card.appendChild(overlay);
+        // Disable buttons
+        card.querySelectorAll('button').forEach(b => b.disabled = true);
+      } else {
+        // Re-enable vote button if voting is allowed
+        const btn = card.querySelector('.btn-vote');
+        if (btn && !card.classList.contains('is-me')) btn.disabled = false;
+      }
+    });
+  }
+
+  function updateVoteBadges() {
+    document.querySelectorAll('.card').forEach(card => {
+      const name = card.dataset.name;
+      const count = currentVoteCounts[name] || 0;
+      const badge = card.querySelector('.vote-count');
+      if (badge) {
+        badge.textContent = count;
+        badge.classList.toggle('visible', count > 0);
+      }
+    });
+  }
+
+  function renderGrid(players, votingEnabled) {
+    const grid = document.getElementById('playerGrid');
+    grid.innerHTML = '';
+
+    if (players.length === 0) {
+      grid.innerHTML = '<p style="color:#5a0000;font-size:12px;letter-spacing:2px;text-align:center;grid-column:span 2;padding:40px 0;">WAITING FOR PLAYERS...</p>';
+      return;
+    }
+
+    players.forEach((p) => {
+      const isMe = p.name === currentUser.toUpperCase();
+      const count = currentVoteCounts[p.name] || 0;
+      const isElim = eliminatedPlayers.has(p.name);
+      const card = document.createElement('div');
+      card.className = 'card' + (isMe ? ' is-me' : '') + (voted === p.id ? ' voted' : '') + (isElim ? ' eliminated' : '');
+      card.dataset.pid = p.id;
+      card.dataset.name = p.name;
+      card.innerHTML = `
+        ${isMe ? '<span class="me-badge">YOU</span>' : ''}
+        <span class="vote-count ${count > 0 ? 'visible' : ''}">${count}</span>
+        <div class="avatar-wrap">
+          <img src="${encodeURI(p.photo)}" alt="${p.name}"
+               style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+        </div>
+        <div class="player-name">${p.name}</div>
+        <button class="btn-vote ${voted === p.id ? 'active' : ''}"
+          onclick="openVoteModal('${p.id}', '${p.name}')"
+          ${(!votingEnabled || isMe || isElim) ? 'disabled' : ''}>VOTE</button>
+        ${isElim ? '<div class="elim-overlay"><div class="elim-x">✕</div><div class="elim-label">ELIMINATED</div></div>' : ''}
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function openVoteModal(pid, name) {
+    pendingVoteTarget = { id: pid, name };
+    document.getElementById('voteTargetName').textContent = name;
+    document.getElementById('voteTargetName2').textContent = name;
+    document.getElementById('voteModal').classList.add('show');
+  }
+
+  function cancelVote() {
+    pendingVoteTarget = null;
+    document.getElementById('voteModal').classList.remove('show');
+  }
+
+  function confirmVote() {
+    if (!pendingVoteTarget) return;
+    document.getElementById('voteModal').classList.remove('show');
+
+    voted = pendingVoteTarget.id;
+    socket.emit('cast_vote', { targetName: pendingVoteTarget.name });
+
+    // Update card styles immediately
+    document.querySelectorAll('.card').forEach(c => {
+      c.classList.remove('voted');
+      c.querySelector('.btn-vote')?.classList.remove('active');
+    });
+    const card = document.querySelector(`.card[data-pid="${voted}"]`);
+    if (card) {
+      card.classList.add('voted');
+      card.querySelector('.btn-vote')?.classList.add('active');
+    }
+
+    pendingVoteTarget = null;
+  }
+
+  function updateBanner(count, votingEnabled) {
+    const banner = document.getElementById('lockedBanner');
+    document.getElementById('playerCountDisplay').textContent = count;
+    banner.classList.toggle('show', !votingEnabled);
+  }
+
+  // Listen for timer override from lou
+  socket.on('timer_set', (newSeconds) => {
+    seconds = newSeconds;
+    timerEl.textContent = formatTime(seconds);
+  });
+
+  socket.on('phase_set', (phase) => {
+    document.getElementById('phaseLabel').textContent = phase;
+  });
+
+  socket.on('round_set', (round) => {
+    const badge = document.getElementById('phaseBadge');
+    badge.textContent = 'ROUND ' + round;
+    badge.style.display = '';
+  });
+
+  // Countdown timer
+  let seconds = 3600;
+  const timerEl = document.getElementById('timer');
+  function formatTime(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return h > 0
+      ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
+      : `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  }
+  timerEl.textContent = formatTime(seconds);
+  setInterval(() => {
+    if (seconds <= 0) return;
+    seconds--;
+    timerEl.textContent = formatTime(seconds);
+  }, 1000);
+
+  // Nav switching
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(n => {
+        n.classList.remove('active');
+        const dot = n.querySelector('.nav-dot');
+        if (dot) dot.remove();
+      });
+      item.classList.add('active');
+      const dot = document.createElement('div');
+      dot.className = 'nav-dot';
+      item.appendChild(dot);
+    });
+  });
+
+  // Global announcement
+  socket.on('announcement', ({ title, message }) => showAnnouncement(title, message));
+</script>
+
+<!-- Announcement Modal -->
+<div id="announcementOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.88);backdrop-filter:blur(4px);align-items:center;justify-content:center;animation:fadeInAnn 0.3s ease;">
+  <div style="background:linear-gradient(160deg,#1a0000,#0d0000);border:2px solid #cc1111;border-radius:20px;padding:32px 24px;width:88%;max-width:340px;text-align:center;box-shadow:0 0 60px rgba(200,0,0,0.5),0 0 120px rgba(200,0,0,0.2);display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <div style="font-size:28px;line-height:1;">📢</div>
+    <div id="annTitle" style="font-size:15px;font-weight:900;letter-spacing:4px;color:#cc1111;font-family:'Arial Black',Arial,sans-serif;text-shadow:0 0 16px rgba(200,0,0,0.7);"></div>
+    <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,#cc1111,transparent);"></div>
+    <div id="annMessage" style="font-size:13px;color:#ccc;line-height:1.7;font-family:Arial,sans-serif;letter-spacing:0.3px;"></div>
+    <button onclick="closeAnnouncement()" style="margin-top:6px;padding:12px 40px;background:linear-gradient(135deg,#8b0000,#cc1111);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:900;letter-spacing:3px;cursor:pointer;font-family:'Arial Black',Arial,sans-serif;box-shadow:0 0 16px rgba(200,0,0,0.5);transition:box-shadow 0.2s;">OKAY</button>
+  </div>
+</div>
+<style>
+  @keyframes fadeInAnn { from { opacity:0; } to { opacity:1; } }
+</style>
+<script>
+  function showAnnouncement(title, message) {
+    document.getElementById('annTitle').textContent = title;
+    document.getElementById('annMessage').textContent = message;
+    const el = document.getElementById('announcementOverlay');
+    el.style.display = 'flex';
+    el.style.animation = 'fadeInAnn 0.3s ease';
+  }
+  function closeAnnouncement() {
+    document.getElementById('announcementOverlay').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
