@@ -24,151 +24,15 @@
       font-family: 'Arial Black', Arial, sans-serif;
     }
 
-    .phone {
+    .register {
       width: 100%;
+      max-width: 400px;
       min-height: 100vh;
-      background: #0d0d0d;
-      overflow: hidden;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .phone::before { display: none; }
-    .phone::after { display: none; }
-
-    /* ===== SPLASH SCREEN ===== */
-    #splash {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      transition: opacity 0.6s ease;
-    }
-
-    #splash.fade-out {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .logo-area {
-      margin-top: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .brand-tycoon {
-      font-size: 44px;
-      font-weight: 900;
-      letter-spacing: 8px;
-      color: #cc1111;
-      text-shadow: 0 0 24px rgba(200,0,0,0.6);
-    }
-
-    .brand-mafia {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #cc1111;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 10px;
-    }
-
-    .brand-mafia span.line {
-      display: inline-block;
-      width: 28px;
-      height: 1.5px;
-      background: #cc1111;
-    }
-
-    .crown-wrap { margin-top: 6px; }
-
-    .skyline-wrap {
-      width: 100%;
-      height: 130px;
-    }
-
-    .skyline-wrap svg { width: 100%; height: 100%; }
-
-    .bottom {
-      width: 100%;
-      padding: 0 24px 44px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-    }
-
-    .icons-row {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      padding: 0 8px;
-    }
-
-    .icons-row svg {
-      width: 34px;
-      height: 34px;
-      stroke: #cc1111;
-      fill: none;
-      stroke-width: 1.6;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      filter: drop-shadow(0 0 5px rgba(200,0,0,0.5));
-    }
-
-    .loader-track {
-      width: 130px;
-      height: 3px;
-      background: rgba(180,0,0,0.2);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
-    .loader-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #8b0000, #ff3333);
-      border-radius: 99px;
-      box-shadow: 0 0 8px #ff0000;
-      animation: loadbar 2.5s ease-in-out forwards;
-    }
-
-    @keyframes loadbar {
-      0%   { width: 0%; }
-      100% { width: 100%; }
-    }
-
-    /* ===== REGISTER SCREEN ===== */
-    #register {
-      position: absolute;
-      inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 40px 32px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.6s ease;
-    }
-
-    #register.visible {
-      opacity: 1;
-      pointer-events: all;
     }
 
     .reg-logo {
@@ -192,8 +56,18 @@
       font-size: 11px;
       letter-spacing: 3px;
       color: #660000;
-      margin-bottom: 36px;
       font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .reg-desc {
+      font-size: 11px;
+      color: #5a0000;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 28px;
+      letter-spacing: 0.3px;
     }
 
     .form {
@@ -242,7 +116,7 @@
       pointer-events: none;
     }
 
-    .btn-register {
+    .btn-join {
       margin-top: 8px;
       width: 100%;
       padding: 15px;
@@ -256,128 +130,70 @@
       cursor: pointer;
       box-shadow: 0 0 20px rgba(200,0,0,0.4);
       transition: box-shadow 0.2s, transform 0.1s;
+      font-family: 'Arial Black', Arial, sans-serif;
     }
 
-    .btn-register:hover {
+    .btn-join:hover {
       box-shadow: 0 0 30px rgba(200,0,0,0.7);
       transform: translateY(-1px);
     }
 
-    .btn-register:active { transform: translateY(0); }
+    .btn-join:active { transform: translateY(0); }
 
+    .reg-error {
+      color: #ff4444;
+      font-size: 11px;
+      letter-spacing: 1px;
+      margin-top: 12px;
+      display: none;
+      font-family: Arial, sans-serif;
+    }
 
+    .reg-footer {
+      font-size: 10px;
+      color: #3d0000;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 24px;
+    }
   </style>
 </head>
 <body>
 
-<div class="phone">
+<div class="register">
+  <img src="LOGO.png" alt="Tycoon Mafia Logo" class="reg-logo" />
+  <div class="reg-title">TYCOON MAFIA</div>
+  <div class="reg-sub">MULTIPLAYER PARTY GAME</div>
+  <p class="reg-desc">A real-time social deduction game.<br>Enter a nickname to join your crew.</p>
 
-  <!-- ===== SPLASH ===== -->
-  <div id="splash">
-
-    <div class="logo-area">
-      <img src="LOGO.png" alt="Tycoon Mafia Logo"
-           style="width:170px;height:170px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(200,0,0,0.6));" />
+  <div class="form">
+    <div class="input-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20 Q4 14 12 14 Q20 14 20 20"/></svg>
+      <input type="text" id="usernameInput" placeholder="Enter your nickname" autocomplete="off" />
     </div>
-
-    <div class="brand">
-      <div class="brand-tycoon">TYCOON</div>
-      <div class="brand-mafia">
-        <span class="line"></span>MAFIA<span class="line"></span>
-      </div>
-      <div class="crown-wrap">
-        <svg width="28" height="18" viewBox="0 0 28 18" fill="#cc1111"
-             style="filter:drop-shadow(0 0 6px rgba(200,0,0,0.7))">
-          <path d="M2 16 L2 9 L8 13 L14 2 L20 13 L26 9 L26 16 Z"/>
-        </svg>
-      </div>
-    </div>
-
-    <div class="skyline-wrap">
-      <svg viewBox="0 0 375 130" preserveAspectRatio="none">
-        <path fill="#2a0000" opacity="0.8" d="
-          M0,130 L0,95 L15,95 L15,75 L25,75 L25,55 L35,55 L35,75 L45,75 L45,90
-          L50,90 L50,65 L58,65 L58,45 L63,45 L63,35 L68,35 L68,45 L73,45 L73,65 L80,65
-          L80,50 L87,50 L87,38 L92,38 L92,28 L97,28 L97,38 L102,38 L102,50 L108,50
-          L108,65 L115,65 L115,75 L122,75 L122,55 L128,55 L128,42 L133,42 L133,32 L138,32
-          L138,42 L143,42 L143,55 L150,55 L150,70 L157,70 L157,55 L163,55 L163,42 L168,42
-          L168,32 L173,32 L173,42 L178,42 L178,55 L185,55 L185,68 L192,68 L192,52 L197,52
-          L197,40 L202,40 L202,52 L207,52 L207,68 L215,68 L215,78 L222,78 L222,60 L228,60
-          L228,48 L233,48 L233,38 L238,38 L238,48 L243,48 L243,60 L250,60 L250,75 L257,75
-          L257,58 L263,58 L263,45 L268,45 L268,35 L273,35 L273,45 L278,45 L278,58 L285,58
-          L285,72 L292,72 L292,85 L298,85 L298,70 L303,70 L303,58 L308,58 L308,70 L313,70
-          L313,85 L320,85 L320,92 L328,92 L328,78 L333,78 L333,68 L338,68 L338,78 L343,78
-          L343,92 L350,92 L350,100 L360,100 L360,88 L365,88 L365,100 L375,100 L375,130 Z
-        "/>
-      </svg>
-    </div>
-
-    <div class="bottom">
-      <div class="icons-row">
-        <!-- Money -->
-        <svg viewBox="0 0 34 34"><rect x="4" y="12" width="26" height="16" rx="2"/><rect x="6" y="9" width="22" height="4" rx="1"/><rect x="9" y="6" width="16" height="4" rx="1"/><circle cx="17" cy="20" r="3"/></svg>
-        <!-- Gun -->
-        <svg viewBox="0 0 34 34"><path d="M5 15 L5 20 L12 20 L12 24 L22 24 L22 20 L28 20 L30 15 L28 12 L22 12 L22 10 L12 10 L12 15 Z"/><rect x="13" y="24" width="5" height="5" rx="1"/></svg>
-        <!-- Building -->
-        <svg viewBox="0 0 34 34"><rect x="5" y="8" width="24" height="22" rx="1"/><rect x="9" y="12" width="5" height="5"/><rect x="20" y="12" width="5" height="5"/><rect x="9" y="21" width="5" height="5"/><rect x="20" y="21" width="5" height="5"/><rect x="14" y="24" width="6" height="6"/><line x1="17" y1="4" x2="17" y2="8" stroke-width="2"/><line x1="13" y1="6" x2="21" y2="6" stroke-width="2"/></svg>
-        <!-- Car -->
-        <svg viewBox="0 0 34 34"><path d="M4 20 L7 13 L11 11 L23 11 L27 13 L30 20 L30 25 L4 25 Z"/><circle cx="10" cy="25" r="3.5"/><circle cx="24" cy="25" r="3.5"/><path d="M9 16 L13 12 L21 12 L25 16 Z"/></svg>
-        <!-- Chess rook -->
-        <svg viewBox="0 0 34 34"><rect x="9" y="6" width="16" height="4"/><rect x="9" y="6" width="3" height="6"/><rect x="15.5" y="6" width="3" height="6"/><rect x="22" y="6" width="3" height="6"/><rect x="11" y="12" width="12" height="13" rx="1"/><rect x="7" y="25" width="20" height="4" rx="1"/></svg>
-      </div>
-      <div class="loader-track">
-        <div class="loader-fill"></div>
-      </div>
-    </div>
-
+    <button class="btn-join" onclick="joinGame()">JOIN GAME</button>
   </div>
 
-  <!-- ===== REGISTER ===== -->
-  <div id="register">
-    <img src="LOGO.png" alt="Tycoon Mafia Logo" class="reg-logo" />
-    <div class="reg-title">TYCOON MAFIA</div>
-    <div class="reg-sub">MULTIPLAYER PARTY GAME</div>
-    <p style="font-size:11px;color:#5a0000;font-family:Arial,sans-serif;text-align:center;line-height:1.6;margin-bottom:20px;letter-spacing:0.3px;">
-      A real-time social deduction game.<br>Enter a nickname to join your crew.
-    </p>
-
-    <div class="form">
-      <div class="input-wrap">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20 Q4 14 12 14 Q20 14 20 20"/></svg>
-        <input type="text" id="usernameInput" placeholder="Enter your nickname" autocomplete="off" />
-      </div>
-      <button class="btn-register" onclick="goToMain()">JOIN GAME</button>
-    </div>
-
-    <p id="reg-error" style="color:#ff4444;font-size:11px;letter-spacing:1px;margin-top:12px;display:none;font-family:Arial;"></p>
-    <p style="font-size:10px;color:#3d0000;font-family:Arial,sans-serif;text-align:center;margin-top:20px;">
-      For entertainment purposes only
-    </p>
-
-  </div>
-
+  <p class="reg-error" id="reg-error"></p>
+  <p class="reg-footer">For entertainment purposes only</p>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  // Register service worker for PWA
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
   }
+
   const socket = io();
 
-  // Skip splash, show register immediately
-  document.getElementById('splash').style.display = 'none';
-  document.getElementById('register').classList.add('visible');
+  document.getElementById('usernameInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') joinGame();
+  });
 
-  function goToMain() {
+  function joinGame() {
     const username = document.getElementById('usernameInput').value.trim();
     if (!username) return;
-
-    const isLou = username.toLowerCase() === 'lou';
-    const photo = isLou ? 'WOMAN.jpg' : null;
-
-    socket.emit('register', { name: username, photo });
+    socket.emit('register', { name: username });
   }
 
   socket.on('register_error', (msg) => {
@@ -386,17 +202,11 @@
     err.style.display = 'block';
   });
 
-  socket.on('registered', ({ status, player, position }) => {
+  socket.on('registered', ({ status, player }) => {
     const username = document.getElementById('usernameInput').value.trim();
-    // Store player info so main.html can re-register on connect
     sessionStorage.setItem('tmUser', username);
     sessionStorage.setItem('tmPhoto', player ? (player.photo || '') : '');
-    if (status === 'lobby') {
-      window.location.href = 'main.html';
-    } else {
-      sessionStorage.setItem('tmQueue', position);
-      window.location.href = 'main.html';
-    }
+    window.location.href = 'main.html';
   });
 </script>
 
